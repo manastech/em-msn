@@ -11,7 +11,20 @@ class Msn::NotificationServer < EventMachine::Connection
 
   def send_message(email, text)
     switchboard = @switchboards[email]
-    switchboard.send_message text
+    if switchboard
+      switchboard.send_message text
+    else
+      Fiber.new do
+        response = xfr "SB"
+        switchboard = create_switchboard email, response[3]
+        switchboard.on_event 'JOI' do
+          switchboard.clear_event 'JOI'
+          switchboard.send_message text
+        end
+        switchboard.usr messenger.username, response[5]
+        switchboard.cal email
+      end.resume
+    end
   end
 
   def username
@@ -82,9 +95,7 @@ class Msn::NotificationServer < EventMachine::Connection
     end
 
     on_event('RNG') do |header|
-      host, port = header[2].split(':')
-      switchboard = EM.connect host, port, Msn::Switchboard, messenger
-      @switchboards[header[5]] = switchboard
+      switchboard = create_switchboard header[5], header[2]
       switchboard.ans username, header[4], header[1]
     end
 
@@ -94,6 +105,11 @@ class Msn::NotificationServer < EventMachine::Connection
     end
 
     @display_name = CGI.unescape response[4]
+  end
+
+  def create_switchboard(email, host_and_port)
+    host, port = host_and_port.split(':')
+    @switchboards[email] = EM.connect host, port, Msn::Switchboard, messenger
   end
 
   def unbind

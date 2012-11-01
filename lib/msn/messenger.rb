@@ -45,11 +45,15 @@ class Msn::Messenger
   end
 
   def accept_message(message)
-    @on_message_handler.call(message) if @on_message_handler
+    if @on_message_handler
+      Fiber.new { @on_message_handler.call(message) }.resume
+    end
   end
 
   def ready
-    @on_ready_handler.call if @on_ready_handler
+    if @on_ready_handler
+      Fiber.new { @on_ready_handler.call }.resume
+    end
   end
 
   def self.debug

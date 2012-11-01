@@ -20,7 +20,7 @@ module Msn::Protocol
 
       size = pieces.last.to_i
       set_binary_mode size
-    when 'CHG', 'QRY'
+    when 'QRY'
       # ignore
     else
       if fiber = @command_fibers.delete(pieces[1].to_i)
@@ -73,6 +73,10 @@ module Msn::Protocol
   def on_event(kind, &block)
     @event_handlers ||= {}
     @event_handlers[kind] = block
+  end
+
+  def clear_event(kind)
+    @event_handlers.delete kind
   end
 
   def method_missing(name, *args)
