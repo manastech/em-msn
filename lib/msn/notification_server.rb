@@ -109,7 +109,16 @@ class Msn::NotificationServer < EventMachine::Connection
 
   def create_switchboard(email, host_and_port)
     host, port = host_and_port.split(':')
-    @switchboards[email] = EM.connect host, port, Msn::Switchboard, messenger
+    switchboard = EM.connect host, port, Msn::Switchboard, messenger
+    switchboard.on_event 'BYE' do |header|
+      destroy_switchboard email if header[1] == email
+    end
+    @switchboards[email] = switchboard
+  end
+
+  def destroy_switchboard(email)
+    switchboard = @switchboards.delete email
+    switchboard.close_connection
   end
 
   def unbind

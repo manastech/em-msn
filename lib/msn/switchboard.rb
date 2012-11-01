@@ -20,9 +20,7 @@ class Msn::Switchboard < EventMachine::Connection
     header = "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nUser-Agent: pidgin/2.10.5devel\r\nX-MMS-IM-Format: FN=Segoe%20UI; EF=; CO=0; PF=0; RL=0\r\n\r\n#{text}"
     message = "MSG #{@trid} N #{header.length}\r\n#{header}"
 
-    puts ">> #{message}" if Msn::Messenger.debug
-    send_data message
-    @trid += 1
+    send_command_internal message
   end
 end
 

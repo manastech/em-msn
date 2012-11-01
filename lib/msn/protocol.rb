@@ -51,23 +51,22 @@ module Msn::Protocol
   def answer_challenge(challenge_string)
     payload = Digest::MD5.hexdigest "#{challenge_string}Q1P7W2E4J9R8U3S5"
 
-    data = "QRY #{@trid} msmsgs@msnmsgr.com 32\r\n#{payload}"
-    puts ">>* #{data}" if Msn::Messenger.debug
-
-    send_data data
-
-    @trid += 1
+    send_command_internal "QRY #{@trid} msmsgs@msnmsgr.com 32\r\n#{payload}"
   end
 
   def send_command(command, *args)
     @command_fibers[@trid] = Fiber.current
 
     text = "#{command} #{@trid} #{args.join ' '}\r\n"
+    send_command_internal text
+
+    Fiber.yield
+  end
+
+  def send_command_internal(text)
     puts ">> #{text}" if Msn::Messenger.debug
     send_data text
     @trid += 1
-
-    Fiber.yield
   end
 
   def on_event(kind, &block)
