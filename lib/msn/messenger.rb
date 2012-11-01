@@ -40,6 +40,10 @@ class Msn::Messenger
     @on_message_handler = handler
   end
 
+  def send_message(email, text)
+    @notification_server.send_message email, text
+  end
+
   def accept_message(message)
     @on_message_handler.call(message) if @on_message_handler
   end

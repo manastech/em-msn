@@ -6,6 +6,12 @@ class Msn::NotificationServer < EventMachine::Connection
 
   def initialize(messenger)
     @messenger = messenger
+    @switchboards = {}
+  end
+
+  def send_message(email, text)
+    switchboard = @switchboards[email]
+    switchboard.send_message text
   end
 
   def username
@@ -77,8 +83,9 @@ class Msn::NotificationServer < EventMachine::Connection
 
     on_event('RNG') do |header|
       host, port = header[2].split(':')
-      rng_conn = EM.connect host, port, Msn::Switchboard, messenger
-      rng_conn.ans username, header[4], header[1]
+      switchboard = EM.connect host, port, Msn::Switchboard, messenger
+      @switchboards[header[5]] = switchboard
+      switchboard.ans username, header[4], header[1]
     end
 
     response = usr "TWN", "S", token
