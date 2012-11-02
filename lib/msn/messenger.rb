@@ -32,12 +32,24 @@ class Msn::Messenger
     end
   end
 
+  def add_contact(email, display_name = email)
+    @notification_server.add "AL", email, display_name
+  end
+
+  def remove_contact(email)
+    @notification_server.rem "AL", email
+  end
+
   def on_ready(&handler)
     @on_ready_handler = handler
   end
 
   def on_message(&handler)
     @on_message_handler = handler
+  end
+
+  def on_contact_request(&handler)
+    @on_contact_request = handler
   end
 
   def send_message(email, text)
@@ -47,6 +59,12 @@ class Msn::Messenger
   def accept_message(message)
     if @on_message_handler
       Fiber.new { @on_message_handler.call(message) }.resume
+    end
+  end
+
+  def contact_request(email, display_name)
+    if @on_contact_request
+      Fiber.new { @on_contact_request.call(email, display_name) }.resume
     end
   end
 

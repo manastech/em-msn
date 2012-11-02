@@ -2,12 +2,13 @@ module Msn::Protocol
   include EventMachine::Protocols::LineText2
 
   def post_init
-    @trid = 0
+    @trid = 1
     @command_fibers = {}
   end
 
   def receive_line(line)
     puts "<< #{line}" if Msn::Messenger.debug
+
     pieces = line.split(' ')
 
     case pieces[0]
@@ -15,7 +16,7 @@ module Msn::Protocol
       answer_challenge pieces[2]
     when 'RNG'
       handle_event pieces
-    when 'MSG'
+    when 'MSG', 'NOT', 'GCF'
       @header = pieces
 
       size = pieces.last.to_i

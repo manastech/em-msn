@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.files = [
     "lib/em-msn.rb",
     "lib/msn/message.rb",
+    "lib/msn/nexus.rb",
     "lib/msn/messenger.rb",
     "lib/msn/notification_server.rb",
     "lib/msn/protocol.rb",
@@ -28,4 +29,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency "eventmachine"
   s.add_dependency "rest-client"
+  s.add_dependency "guid"
+
+  s.add_development_dependency "rspec", ["~> 2.7"]
 end
