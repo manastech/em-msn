@@ -32,13 +32,25 @@ class Msn::Messenger
     end
   end
 
-  def add_contact(email, display_name = email)
-    @notification_server.add "AL", email, display_name
+  def add_contact(email)
+    send_contact_command email, 'ADL', '1'
   end
 
   def remove_contact(email)
+    send_contact_command email, 'RML', '1'
+  end
+
+  def block_contact(email)
+    send_contact_command email, 'RML', '2'
+  end
+
+  def unblock_contact(email)
+    send_contact_command email, 'ADL', '2'
+  end
+
+  def send_contact_command(email, command, list)
     username, domain = email.split '@', 2
-    @notification_server.send_payload_command "RML", %Q(<ml><d n="#{domain}"><c n="#{username}" t="1" l="1" /></d></ml>)
+    @notification_server.send_payload_command_and_wait command, %Q(<ml><d n="#{domain}"><c n="#{username}" t="1" l="#{list}" /></d></ml>)
   end
 
   def on_ready(&handler)

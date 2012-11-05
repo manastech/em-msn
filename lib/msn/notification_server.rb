@@ -2,7 +2,6 @@ class Msn::NotificationServer < EventMachine::Connection
   include Msn::Protocol
 
   attr_reader :messenger
-  attr_reader :display_name
   attr_reader :guid
 
   def initialize(messenger)
@@ -10,12 +9,13 @@ class Msn::NotificationServer < EventMachine::Connection
     @guid = Guid.new.to_s
     @switchboards = {}
 
-    on_event 'ADD' do |header|
-      if header[3] =~ /\A\d+\Z/
-        messenger.contact_request header[4], header[5]
-      else
-        messenger.contact_request header[3], header[4]
-      end
+    on_event 'ADL' do |header, data|
+      data = Nokogiri::XML(data)
+      domain = data.xpath('//ml/d').first['n']
+      c = data.xpath('//ml/d/c').first
+      username = c['n']
+      display_name = c['f']
+      messenger.contact_request "#{username}@#{domain}", display_name
     end
   end
 
@@ -74,6 +74,14 @@ class Msn::NotificationServer < EventMachine::Connection
     nexus = Msn::Nexus.new policy, nonce
     token, return_value = nexus.login messenger.username, messenger.password
 
+    first_msg = true
+    on_event('MSG') do
+      if first_msg
+        first_msg = false
+        messenger.ready
+      end
+    end
+
     on_event('RNG') do |header|
       switchboard = create_switchboard header[5], header[2]
       switchboard.ans username_guid, header[4], header[1]
@@ -83,10 +91,6 @@ class Msn::NotificationServer < EventMachine::Connection
     if response[2] != "OK"
       raise "Login failed (3)"
     end
-
-    messenger.ready
-
-    @display_name = CGI.unescape response[4]
   end
 
   def create_switchboard(email, host_and_port)

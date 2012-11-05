@@ -16,20 +16,34 @@ module Msn::Protocol
       answer_challenge pieces[2]
     when 'RNG'
       handle_event pieces
-    when 'MSG', 'NOT', 'GCF', 'ADL', 'RML'
-      @header = pieces
-
-      size = pieces.last.to_i
-      set_binary_mode size
+    when 'MSG', 'NOT', 'GCF', 'UBX'
+      handle_payload_command pieces
     when 'QRY'
       # ignore
-    else
-      if fiber = @command_fibers.delete(pieces[1].to_i)
-        fiber.resume pieces
+    when 'ADL', 'RML'
+      if pieces[2] == 'OK'
+        handle_normal_command pieces
       else
-        handle_event pieces
+        handle_payload_command pieces
       end
+    else
+      handle_normal_command pieces
     end
+  end
+
+  def handle_normal_command(pieces)
+    if fiber = @command_fibers.delete(pieces[1].to_i)
+      fiber.resume pieces
+    else
+      handle_event pieces
+    end
+  end
+
+  def handle_payload_command(pieces)
+    @header = pieces
+
+    size = pieces.last.to_i
+    set_binary_mode size
   end
 
   def receive_binary_data(data)
@@ -66,6 +80,14 @@ module Msn::Protocol
     payload = args.pop
     args.push payload.length
     send_command_internal "#{command} #{@trid} #{args.join ' '}\r\n#{payload}"
+  end
+
+  def send_payload_command_and_wait(command, *args)
+    @command_fibers[@trid] = Fiber.current
+
+    send_payload_command command, *args
+
+    Fiber.yield
   end
 
   def send_command_internal(text)

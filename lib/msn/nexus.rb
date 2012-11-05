@@ -29,8 +29,8 @@ class Msn::Nexus
     xml = Nokogiri::XML(response)
 
     rstr = xml.xpath "//wst:RequestSecurityTokenResponse[wsp:AppliesTo/wsa:EndpointReference/wsa:Address!='http://Passport.NET/tb']", Namespaces
-    token = rstr.xpath("wst:RequestedSecurityToken/wsse:BinarySecurityToken[@Id='Compact1']", Namespaces).text
-    secret = rstr.xpath("wst:RequestedProofToken/wst:BinarySecret", Namespaces).text
+    token = rstr.xpath("wst:RequestedSecurityToken/wsse:BinarySecurityToken[@Id='Compact1']", Namespaces).first.text
+    secret = rstr.xpath("wst:RequestedProofToken/wst:BinarySecret", Namespaces).first.text
 
     [token, secret]
   end
