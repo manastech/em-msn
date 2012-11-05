@@ -17,6 +17,7 @@ Gem::Specification.new do |s|
     "lib/msn/message.rb",
     "lib/msn/nexus.rb",
     "lib/msn/messenger.rb",
+    "lib/msn/challenge.rb",
     "lib/msn/notification_server.rb",
     "lib/msn/protocol.rb",
     "lib/msn/switchboard.rb",

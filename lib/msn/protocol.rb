@@ -50,9 +50,9 @@ module Msn::Protocol
   end
 
   def answer_challenge(challenge_string)
-    payload = Digest::MD5.hexdigest "#{challenge_string}Q1P7W2E4J9R8U3S5"
+    payload = Msn::Challenge.challenge(challenge_string)
 
-    send_command_internal "QRY #{@trid} msmsgs@msnmsgr.com 32\r\n#{payload}"
+    send_command_internal "QRY #{@trid} #{Msn::Challenge::ProductId} 32\r\n#{payload}"
   end
 
   def send_command(command, *args)
