@@ -104,7 +104,7 @@ class Msn::NotificationServer < EventMachine::Connection
 
   def destroy_switchboard(email)
     switchboard = @switchboards.delete email
-    switchboard.close_connection
+    switchboard.close_connection if switchboard
   end
 
   def unbind

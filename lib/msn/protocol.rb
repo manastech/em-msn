@@ -108,9 +108,5 @@ module Msn::Protocol
   def method_missing(name, *args)
     send_command name.upcase, *args
   end
-
-  def unbind
-    puts "Chau :-("
-  end
 end
 
