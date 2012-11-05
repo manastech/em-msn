@@ -26,11 +26,11 @@ class Msn::Nexus
     soap = msn_sso_template.result(binding)
 
     response = RestClient.post "https://login.live.com/RST.srf", soap
-    xml = REXML::Document.new response
+    xml = Nokogiri::XML(response)
 
-    rstr = REXML::XPath.first(xml, "//wst:RequestSecurityTokenResponse[wsp:AppliesTo/wsa:EndpointReference/wsa:Address!='http://Passport.NET/tb']", Namespaces)
-    token = REXML::XPath.first(rstr, "wst:RequestedSecurityToken/wsse:BinarySecurityToken[@Id='Compact1']", Namespaces).text
-    secret = REXML::XPath.first(rstr, "wst:RequestedProofToken/wst:BinarySecret", Namespaces).text
+    rstr = xml.xpath "//wst:RequestSecurityTokenResponse[wsp:AppliesTo/wsa:EndpointReference/wsa:Address!='http://Passport.NET/tb']", Namespaces
+    token = rstr.xpath("wst:RequestedSecurityToken/wsse:BinarySecurityToken[@Id='Compact1']", Namespaces).text
+    secret = rstr.xpath("wst:RequestedProofToken/wst:BinarySecret", Namespaces).text
 
     [token, secret]
   end

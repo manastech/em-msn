@@ -10,7 +10,7 @@ require 'base64'
 require 'digest/md5'
 require 'digest/hmac'
 require 'erb'
-require "rexml/document"
+require "nokogiri"
 
 require_relative 'msn/protocol'
 require_relative 'msn/message'

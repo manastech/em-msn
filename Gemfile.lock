@@ -4,6 +4,7 @@ PATH
     em-msn (0.1)
       eventmachine
       guid
+      nokogiri
       rest-client
 
 GEM
@@ -13,6 +14,7 @@ GEM
     eventmachine (1.0.0)
     guid (0.1.1)
     mime-types (1.19)
+    nokogiri (1.5.5)
     rest-client (1.6.7)
       mime-types (>= 1.16)
     rspec (2.11.0)

@@ -30,6 +30,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency "eventmachine"
   s.add_dependency "rest-client"
+  s.add_dependency "nokogiri"
   s.add_dependency "guid"
 
   s.add_development_dependency "rspec", ["~> 2.7"]
