@@ -37,7 +37,11 @@ class Msn::Challenge
       new_hash_parts[2] ^= high;
       new_hash_parts[3] ^= low;
 
-      new_hash_parts.map { |x| x.to_s(16).scan(/.{2}/).reverse.join }.join
+      new_hash_parts.map do |num| 
+        str = num.to_s(16)
+        str = "#{'0' * (8 - str.length)}#{str}" if str.length != 8
+        str.scan(/.{2}/).reverse.join
+      end.join
     end
   end
 end

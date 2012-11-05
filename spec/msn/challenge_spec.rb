@@ -12,4 +12,8 @@ describe Challenge do
   it "replies to longer challenge" do
     Challenge.challenge("237191752526424888127371168").should eq("65b6b623c649c25629af048d34066040")
   end
+
+  it "replies to yet another challenge" do
+    Challenge.challenge("193843906697656899510167525").length.should eq(32)
+  end
 end
