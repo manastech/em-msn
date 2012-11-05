@@ -12,7 +12,7 @@ class Msn::Challenge
       md5array = new_hash_parts.map { |n| n & F }
 
       chlstring = "#{challenge}#{product_id}"
-      chlstring = "#{chlstring}#{'0' * (chlstring.length % 8)}"
+      chlstring = "#{chlstring}#{'0' * (8 - chlstring.length % 8)}"
 
       chlstring_array = chlstring.scan(/.{4}/)
       chlstring_array.map! { |str| str.bytes.map { |b| b.to_s(16) }.reverse.join.to_i(16) }
@@ -38,16 +38,6 @@ class Msn::Challenge
       new_hash_parts[3] ^= low;
 
       new_hash_parts.map { |x| x.to_s(16).scan(/.{2}/).reverse.join }.join
-    end
-
-    def split_in_chunks(string, length)
-      array = []
-      i = 0
-      while i < string.length
-        array.push string[i ... i + length]
-        i += length
-      end
-      array
     end
   end
 end

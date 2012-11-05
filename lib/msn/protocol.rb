@@ -16,7 +16,7 @@ module Msn::Protocol
       answer_challenge pieces[2]
     when 'RNG'
       handle_event pieces
-    when 'MSG', 'NOT', 'GCF'
+    when 'MSG', 'NOT', 'GCF', 'ADL', 'RML'
       @header = pieces
 
       size = pieces.last.to_i
@@ -50,9 +50,7 @@ module Msn::Protocol
   end
 
   def answer_challenge(challenge_string)
-    payload = Msn::Challenge.challenge(challenge_string)
-
-    send_command_internal "QRY #{@trid} #{Msn::Challenge::ProductId} 32\r\n#{payload}"
+    send_payload_command "QRY", Msn::Challenge::ProductId, Msn::Challenge.challenge(challenge_string)
   end
 
   def send_command(command, *args)
@@ -62,6 +60,12 @@ module Msn::Protocol
     send_command_internal text
 
     Fiber.yield
+  end
+
+  def send_payload_command(command, *args)
+    payload = args.pop
+    args.push payload.length
+    send_command_internal "#{command} #{@trid} #{args.join ' '}\r\n#{payload}"
   end
 
   def send_command_internal(text)

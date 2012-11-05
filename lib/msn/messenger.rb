@@ -37,7 +37,8 @@ class Msn::Messenger
   end
 
   def remove_contact(email)
-    @notification_server.rem "AL", email
+    username, domain = email.split '@', 2
+    @notification_server.send_payload_command "RML", %Q(<ml><d n="#{domain}"><c n="#{username}" t="1" l="1" /></d></ml>)
   end
 
   def on_ready(&handler)

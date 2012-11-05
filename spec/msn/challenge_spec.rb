@@ -8,4 +8,8 @@ describe Challenge do
   it "replies to challenge for MSNP15" do
     Challenge.challenge("11533365622852247127").should eq("f086d1ded067186deca8dba2231602cf")
   end
+
+  it "replies to longer challenge" do
+    Challenge.challenge("237191752526424888127371168").should eq("65b6b623c649c25629af048d34066040")
+  end
 end

@@ -74,14 +74,6 @@ class Msn::NotificationServer < EventMachine::Connection
     nexus = Msn::Nexus.new policy, nonce
     token, return_value = nexus.login messenger.username, messenger.password
 
-    first_msg = true
-    on_event('MSG') do
-      if first_msg
-        first_msg = false
-        messenger.ready
-      end
-    end
-
     on_event('RNG') do |header|
       switchboard = create_switchboard header[5], header[2]
       switchboard.ans username_guid, header[4], header[1]
