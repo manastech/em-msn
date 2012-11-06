@@ -44,6 +44,16 @@
                </wsp:AppliesTo>
                <wsse:PolicyReference URI="<%= policy %>"></wsse:PolicyReference>
            </wst:RequestSecurityToken>
+           <wst:RequestSecurityToken Id="RST2">
+               <wst:RequestType>http://schemas.xmlsoap.org/ws/2004/04/security/trust/Issue</wst:RequestType>
+               <wsp:AppliesTo>
+                   <wsa:EndpointReference>
+                       <wsa:Address>contacts.msn.com</wsa:Address>
+                   </wsa:EndpointReference>
+               </wsp:AppliesTo>
+               <wsse:PolicyReference URI="MBI">
+               </wsse:PolicyReference>
+           </wst:RequestSecurityToken>
        </ps:RequestMultipleSecurityTokens>
    </Body>
 </Envelope>

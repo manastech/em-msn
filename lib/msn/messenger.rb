@@ -48,6 +48,10 @@ class Msn::Messenger
     send_contact_command email, 'ADL', '2'
   end
 
+  def get_contacts
+    @notification_server.get_contacts
+  end
+
   def send_contact_command(email, command, list)
     username, domain = email.split '@', 2
     @notification_server.send_payload_command_and_wait command, %Q(<ml><d n="#{domain}"><c n="#{username}" t="1" l="#{list}" /></d></ml>)

@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.files = [
     "lib/em-msn.rb",
     "lib/msn/message.rb",
+    "lib/msn/contact.rb",
     "lib/msn/nexus.rb",
     "lib/msn/messenger.rb",
     "lib/msn/challenge.rb",

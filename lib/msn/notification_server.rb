@@ -1,6 +1,8 @@
 class Msn::NotificationServer < EventMachine::Connection
   include Msn::Protocol
 
+  ContactsNamespace = {'ns' => 'http://www.msn.com/webservices/AddressBook'}
+
   attr_reader :messenger
   attr_reader :guid
 
@@ -49,6 +51,41 @@ class Msn::NotificationServer < EventMachine::Connection
     messenger.password
   end
 
+  def get_contacts
+    contacts = {}
+
+    xml = Nokogiri::XML(get_soap_contacts.body)
+    xml.xpath('//ns:Membership', ContactsNamespace).each do |membership|
+      role = membership.xpath('ns:MemberRole', ContactsNamespace).text
+      membership.xpath('ns:Members/ns:Member', ContactsNamespace).each do |member|
+        cid = member.xpath('ns:CID', ContactsNamespace).text
+        email = member.xpath('ns:PassportName', ContactsNamespace).text
+        display_name = member.xpath('ns:DisplayName', ContactsNamespace)
+
+        contact = contacts[cid] ||= Msn::Contact.new(email, display_name ? display_name.text : nil)
+        case role
+        when 'Allow' then contact.allow = true
+        when 'Block' then contact.block = true
+        when 'Reverse' then contact.reverse = true
+        when 'Pending' then contact.pending = true
+        end
+      end
+    end
+
+    contacts.values
+  end
+
+  def get_soap_contacts
+    msn_get_contacts_template_file = File.expand_path('../soap/msn_get_contacts_template.xml', __FILE__)
+    msn_get_contacts_template = ERB.new File.read(msn_get_contacts_template_file)
+    soap = msn_get_contacts_template.result(binding)
+
+    RestClient.post "https://local-bay.contacts.msn.com/abservice/SharingService.asmx", soap, {
+      'SOAPAction' => 'http://www.msn.com/webservices/AddressBook/FindMembership',
+      'Content-Type' => 'text/xml',
+    }
+  end
+
   def post_init
     super
 
@@ -71,8 +108,7 @@ class Msn::NotificationServer < EventMachine::Connection
   end
 
   def login_to_nexus(policy, nonce)
-    nexus = Msn::Nexus.new policy, nonce
-    token, return_value = nexus.login messenger.username, messenger.password
+    @nexus = Msn::Nexus.new self, policy, nonce
 
     first_msg = true
     on_event('MSG') do
@@ -87,7 +123,7 @@ class Msn::NotificationServer < EventMachine::Connection
       switchboard.ans username_guid, header[4], header[1]
     end
 
-    response = usr "SSO", "S", token, return_value, guid
+    response = usr "SSO", "S", @nexus.sso_token, @nexus.secret, guid
     if response[2] != "OK"
       raise "Login failed (3)"
     end

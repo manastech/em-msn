@@ -1,4 +1,5 @@
 class Msn::Nexus
+  attr_reader :messenger
   attr_reader :policy
   attr_reader :nonce
 
@@ -9,15 +10,33 @@ class Msn::Nexus
     "wsa" => "http://schemas.xmlsoap.org/ws/2004/03/addressing",
   }
 
-  def initialize(policy, nonce)
+  def initialize(messenger, policy, nonce)
+    @messenger = messenger
     @policy = policy
     @nonce = nonce
   end
 
-  def login(username, password)
-    token, secret = get_binary_secret username, password
-    return_value = compute_return_value secret
-    [token, return_value]
+  def sso_token
+    fetch_data
+    @sso_token
+  end
+
+  def ticket_token
+    fetch_data
+    @ticket_token
+  end
+
+  def secret
+    fetch_data
+    @secret
+  end
+
+  def fetch_data
+    return if @fetched_data
+    @fetched_data = true
+
+    @sso_token, secret, @ticket_token = get_binary_secret messenger.username, messenger.password
+    @secret = compute_return_value secret
   end
 
   def get_binary_secret(username, password)
@@ -28,11 +47,14 @@ class Msn::Nexus
     response = RestClient.post "https://login.live.com/RST.srf", soap
     xml = Nokogiri::XML(response)
 
-    rstr = xml.xpath "//wst:RequestSecurityTokenResponse[wsp:AppliesTo/wsa:EndpointReference/wsa:Address!='http://Passport.NET/tb']", Namespaces
+    rstr = xml.xpath "//wst:RequestSecurityTokenResponse[wsp:AppliesTo/wsa:EndpointReference/wsa:Address='messengerclear.live.com']", Namespaces
     token = rstr.xpath("wst:RequestedSecurityToken/wsse:BinarySecurityToken[@Id='Compact1']", Namespaces).first.text
     secret = rstr.xpath("wst:RequestedProofToken/wst:BinarySecret", Namespaces).first.text
 
-    [token, secret]
+    rstr2 = xml.xpath "//wst:RequestSecurityTokenResponse[wsp:AppliesTo/wsa:EndpointReference/wsa:Address='contacts.msn.com']", Namespaces
+    ticket_token = rstr2.xpath("wst:RequestedSecurityToken/wsse:BinarySecurityToken[@Id='Compact2']", Namespaces).first.text
+
+    [token, secret, ticket_token]
   end
 
   def compute_return_value(binary_secret, iv = Random.new.bytes(8))
