@@ -44,8 +44,6 @@
                </wsp:AppliesTo>
                <wsse:PolicyReference URI="<%= policy %>"></wsse:PolicyReference>
            </wst:RequestSecurityToken>
-           ...
-           ...
        </ps:RequestMultipleSecurityTokens>
    </Body>
 </Envelope>
