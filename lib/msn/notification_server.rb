@@ -11,6 +11,9 @@ class Msn::NotificationServer < EventMachine::Connection
     @guid = Guid.new.to_s
     @switchboards = {}
 
+    @message_id = 1
+    @message_ids = {}
+
     on_event 'ADL' do |header, data|
       data = Nokogiri::XML(data)
       domain = data.xpath('//ml/d').first['n']
@@ -26,21 +29,28 @@ class Msn::NotificationServer < EventMachine::Connection
   end
 
   def send_message(email, text)
+    message_id = @message_id
+    @message_id += 1
+
     switchboard = @switchboards[email]
     if switchboard
-      switchboard.send_message text
+      trid = switchboard.send_message text
+      @message_ids[trid] = message_id
     else
       Fiber.new do
         response = xfr "SB"
         switchboard = create_switchboard email, response[3]
         switchboard.on_event 'JOI' do
           switchboard.clear_event 'JOI'
-          switchboard.send_message text
+          trid = switchboard.send_message text
+          @message_ids[trid] = message_id
         end
         switchboard.usr username_guid, response[5]
         switchboard.cal email
       end.resume
     end
+
+    message_id
   end
 
   def username
@@ -137,6 +147,14 @@ class Msn::NotificationServer < EventMachine::Connection
   def create_switchboard(email, host_and_port)
     host, port = host_and_port.split(':')
     switchboard = EM.connect host, port, Msn::Switchboard, messenger
+    switchboard.on_event 'ACK' do |header|
+      trid = header[1].to_i
+      messenger.accept_message_ack @message_ids.delete(trid), true
+    end
+    switchboard.on_event 'NAK' do |header|
+      trid = header[1].to_i
+      messenger.accept_message_ack @message_ids.delete(trid), false
+    end
     switchboard.on_event 'BYE' do |header|
       destroy_switchboard email if header[1] =~ /#{email}/
     end

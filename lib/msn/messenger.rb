@@ -84,6 +84,10 @@ class Msn::Messenger
     @on_message_handler = handler
   end
 
+  def on_message_ack(&handler)
+    @on_message_ack_handler = handler
+  end
+
   def on_contact_request(&handler)
     @on_contact_request = handler
   end
@@ -94,6 +98,10 @@ class Msn::Messenger
 
   def accept_message(message)
     call_handler @on_message_handler, message
+  end
+
+  def accept_message_ack(id, ok)
+    call_handler @on_message_ack_handler, id, ok
   end
 
   def contact_request(email, display_name)

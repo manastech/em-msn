@@ -94,6 +94,7 @@ module Msn::Protocol
     Msn::Messenger.log_info ">> #{text}"
     send_data text
     @trid += 1
+    @trid - 1
   end
 
   def on_event(kind, &block)

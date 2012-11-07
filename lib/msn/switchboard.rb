@@ -17,7 +17,7 @@ class Msn::Switchboard < EventMachine::Connection
   end
 
   def send_message(text)
-    send_payload_command "MSG", "N", "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nUser-Agent: pidgin/2.10.5devel\r\nX-MMS-IM-Format: FN=Segoe%20UI; EF=; CO=0; PF=0; RL=0\r\n\r\n#{text}"
+    send_payload_command "MSG", "A", "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nUser-Agent: pidgin/2.10.5devel\r\nX-MMS-IM-Format: FN=Segoe%20UI; EF=; CO=0; PF=0; RL=0\r\n\r\n#{text}"
   end
 end
 
