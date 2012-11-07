@@ -7,7 +7,7 @@ module Msn::Protocol
   end
 
   def receive_line(line)
-    puts "<< #{line}" if Msn::Messenger.debug
+    Msn::Messenger.log_info "<< #{line}"
 
     pieces = line.split(' ')
 
@@ -47,7 +47,7 @@ module Msn::Protocol
   end
 
   def receive_binary_data(data)
-    puts "<<* #{data}" if Msn::Messenger.debug
+    Msn::Messenger.log_info "<<* #{data}"
 
     handle_event @header, data
   end
@@ -91,7 +91,7 @@ module Msn::Protocol
   end
 
   def send_command_internal(text)
-    puts ">> #{text}" if Msn::Messenger.debug
+    Msn::Messenger.log_info ">> #{text}"
     send_data text
     @trid += 1
   end

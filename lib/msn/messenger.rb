@@ -2,6 +2,17 @@ class Msn::Messenger
   attr_reader :username
   attr_reader :password
 
+  class << self
+    attr_accessor :logger
+
+    def log_info(message)
+      return unless logger
+
+      logger.info message
+    end
+  end
+
+
   def initialize(username, password)
     @username = username
     @password = password
@@ -105,14 +116,6 @@ class Msn::Messenger
     if handler
       Fiber.new { handler.call(*args) }.resume
     end
-  end
-
-  def self.debug
-    @debug
-  end
-
-  def self.debug=(debug)
-    @debug = debug
   end
 end
 
