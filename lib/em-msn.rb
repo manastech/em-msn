@@ -14,6 +14,7 @@ require 'erb'
 require "nokogiri"
 require 'rexml/text'
 
+require_relative 'msn/authentication_error'
 require_relative 'msn/protocol'
 require_relative 'msn/message'
 require_relative 'msn/contact'

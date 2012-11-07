@@ -61,6 +61,14 @@ class Msn::Messenger
     @on_ready_handler = handler
   end
 
+  def on_login_failed(&handler)
+    @on_login_failed = handler
+  end
+
+  def on_disconnect(&handler)
+    @on_disconnect = handler
+  end
+
   def on_message(&handler)
     @on_message_handler = handler
   end
@@ -74,20 +82,28 @@ class Msn::Messenger
   end
 
   def accept_message(message)
-    if @on_message_handler
-      Fiber.new { @on_message_handler.call(message) }.resume
-    end
+    call_handler @on_message_handler, message
   end
 
   def contact_request(email, display_name)
-    if @on_contact_request
-      Fiber.new { @on_contact_request.call(email, display_name) }.resume
-    end
+    call_handler @on_contact_request, email, display_name
   end
 
   def ready
-    if @on_ready_handler
-      Fiber.new { @on_ready_handler.call }.resume
+    call_handler @on_ready_handler
+  end
+
+  def login_failed(message)
+    call_handler @on_login_failed, message
+  end
+
+  def disconnected
+    call_handler @on_disconnect
+  end
+
+  def call_handler(handler, *args)
+    if handler
+      Fiber.new { handler.call(*args) }.resume
     end
   end
 

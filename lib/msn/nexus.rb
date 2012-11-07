@@ -8,6 +8,7 @@ class Msn::Nexus
     "wst" => "http://schemas.xmlsoap.org/ws/2004/04/trust",
     "wsp" => "http://schemas.xmlsoap.org/ws/2002/12/policy",
     "wsa" => "http://schemas.xmlsoap.org/ws/2004/03/addressing",
+    "S" => "http://schemas.xmlsoap.org/soap/envelope/",
   }
 
   def initialize(messenger, policy, nonce)
@@ -36,6 +37,7 @@ class Msn::Nexus
     @fetched_data = true
 
     @sso_token, secret, @ticket_token = get_binary_secret messenger.username, messenger.password
+
     @secret = compute_return_value secret
   end
 
@@ -45,7 +47,14 @@ class Msn::Nexus
     soap = msn_sso_template.result(binding)
 
     response = RestClient.post "https://login.live.com/RST.srf", soap
+
     xml = Nokogiri::XML(response)
+
+    # Check invalid login
+    fault = xml.xpath("//S:Fault/faultstring")
+    if fault
+      raise Msn::AuthenticationError.new(fault.text)
+    end
 
     rstr = xml.xpath "//wst:RequestSecurityTokenResponse[wsp:AppliesTo/wsa:EndpointReference/wsa:Address='messengerclear.live.com']", Namespaces
     token = rstr.xpath("wst:RequestedSecurityToken/wsse:BinarySecurityToken[@Id='Compact1']", Namespaces).first.text

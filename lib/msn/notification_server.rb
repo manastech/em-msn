@@ -94,15 +94,20 @@ class Msn::NotificationServer < EventMachine::Connection
 
   def login
     Fiber.new do
-      ver "MSNP18", "CVR0"
-      cvr "0x0409", "winnt", "5.1", "i386", "MSNMSGR", "8.5.1302", "BC01", username
-      response = usr "SSO", "I", username
-      if response[0] == "XFR" && response[2] == "NS"
-        host, port = response[3].split ':'
-        @reconnect_host, @reconnect_port = response[3].split ':'
+      begin
+        ver "MSNP18", "CVR0"
+        cvr "0x0409", "winnt", "5.1", "i386", "MSNMSGR", "8.5.1302", "BC01", username
+        response = usr "SSO", "I", username
+        if response[0] == "XFR" && response[2] == "NS"
+          host, port = response[3].split ':'
+          @reconnect_host, @reconnect_port = response[3].split ':'
+          close_connection
+        else
+          login_to_nexus(response[4], response[5])
+        end
+      rescue Msn::AuthenticationError => ex
+        messenger.login_failed(ex.message)
         close_connection
-      else
-        login_to_nexus(response[4], response[5])
       end
     end.resume
   end
@@ -125,7 +130,7 @@ class Msn::NotificationServer < EventMachine::Connection
 
     response = usr "SSO", "S", @nexus.sso_token, @nexus.secret, guid
     if response[2] != "OK"
-      raise "Login failed (3)"
+      raise Msn::AuthenticationError.new("Didn't receive OK from SSO")
     end
   end
 
@@ -148,6 +153,8 @@ class Msn::NotificationServer < EventMachine::Connection
       reconnect @reconnect_host, @reconnect_port.to_i
       @reconnect_host = @reconnect_port = nil
       login
+    else
+      messenger.disconnected
     end
   end
 end
