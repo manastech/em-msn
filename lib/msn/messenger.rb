@@ -104,8 +104,8 @@ class Msn::Messenger
     call_handler @on_message_handler, message
   end
 
-  def accept_message_ack(id, ok)
-    call_handler @on_message_ack_handler, id, ok
+  def accept_message_ack(id, status)
+    call_handler @on_message_ack_handler, id, status
   end
 
   def contact_request(email, display_name)

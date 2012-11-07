@@ -46,7 +46,10 @@ class Msn::NotificationServer < EventMachine::Connection
           @message_ids[trid] = message_id
         end
         switchboard.usr username_guid, response[5]
-        switchboard.cal email
+        cal_response = switchboard.cal email
+        if cal_response[0] == '217'
+          messenger.accept_message_ack message_id, :offline
+        end
       end.resume
     end
 
@@ -148,12 +151,10 @@ class Msn::NotificationServer < EventMachine::Connection
     host, port = host_and_port.split(':')
     switchboard = EM.connect host, port, Msn::Switchboard, messenger
     switchboard.on_event 'ACK' do |header|
-      trid = header[1].to_i
-      messenger.accept_message_ack @message_ids.delete(trid), true
+      notify_ack header[1].to_i, :ack
     end
     switchboard.on_event 'NAK' do |header|
-      trid = header[1].to_i
-      messenger.accept_message_ack @message_ids.delete(trid), false
+      notify_ack header[1].to_i, :nak
     end
     switchboard.on_event 'BYE' do |header|
       destroy_switchboard email if header[1] =~ /#{email}/
@@ -164,6 +165,11 @@ class Msn::NotificationServer < EventMachine::Connection
   def destroy_switchboard(email)
     switchboard = @switchboards.delete email
     switchboard.close_connection if switchboard
+  end
+
+  def notify_ack(trid, status)
+    id = @message_ids.delete(trid)
+    messenger.accept_message_ack id, :nak if id
   end
 
   def unbind
