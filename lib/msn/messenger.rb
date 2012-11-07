@@ -63,11 +63,6 @@ class Msn::Messenger
     @notification_server.get_contacts
   end
 
-  def send_contact_command(email, command, list)
-    username, domain = email.split '@', 2
-    @notification_server.send_payload_command_and_wait command, %Q(<ml><d n="#{domain}"><c n="#{username}" t="1" l="#{list}" /></d></ml>)
-  end
-
   def on_ready(&handler)
     @on_ready_handler = handler
   end
@@ -94,6 +89,15 @@ class Msn::Messenger
 
   def send_message(email, text)
     @notification_server.send_message email, text
+  end
+
+  def close
+    @notification_server.close_connection
+  end
+
+  def send_contact_command(email, command, list)
+    username, domain = email.split '@', 2
+    @notification_server.send_payload_command_and_wait command, %Q(<ml><d n="#{domain}"><c n="#{username}" t="1" l="#{list}" /></d></ml>)
   end
 
   def accept_message(message)
