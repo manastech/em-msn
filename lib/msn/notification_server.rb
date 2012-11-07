@@ -169,7 +169,7 @@ class Msn::NotificationServer < EventMachine::Connection
 
   def notify_ack(trid, status)
     id = @message_ids.delete(trid)
-    messenger.accept_message_ack id, :nak if id
+    messenger.accept_message_ack id, status if id
   end
 
   def unbind
