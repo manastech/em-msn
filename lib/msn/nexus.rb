@@ -52,8 +52,8 @@ class Msn::Nexus
 
     # Check invalid login
     fault = xml.xpath("//S:Fault/faultstring")
-    if fault
-      raise Msn::AuthenticationError.new(fault.text)
+    if fault.length > 0
+      raise Msn::AuthenticationError.new(fault.first.text)
     end
 
     rstr = xml.xpath "//wst:RequestSecurityTokenResponse[wsp:AppliesTo/wsa:EndpointReference/wsa:Address='messengerclear.live.com']", Namespaces
