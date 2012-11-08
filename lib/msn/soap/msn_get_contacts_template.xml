@@ -5,6 +5,7 @@
            <ApplicationId xmlns="http://www.msn.com/webservices/AddressBook"><%= Msn::ApplicationId %></ApplicationId>
            <IsMigration xmlns="http://www.msn.com/webservices/AddressBook">false</IsMigration>
            <PartnerScenario xmlns="http://www.msn.com/webservices/AddressBook">Initial</PartnerScenario>
+           <%= cache_key_xml %>
        </ABApplicationHeader>
        <ABAuthHeader xmlns="http://www.msn.com/webservices/AddressBook">
            <ManagedGroupRequest xmlns="http://www.msn.com/webservices/AddressBook">false</ManagedGroupRequest>

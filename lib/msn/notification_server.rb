@@ -89,15 +89,25 @@ class Msn::NotificationServer < EventMachine::Connection
     contacts.values
   end
 
-  def get_soap_contacts
+  def get_soap_contacts(url = "https://local-bay.contacts.msn.com/abservice/SharingService.asmx")
     msn_get_contacts_template_file = File.expand_path('../soap/msn_get_contacts_template.xml', __FILE__)
     msn_get_contacts_template = ERB.new File.read(msn_get_contacts_template_file)
     soap = msn_get_contacts_template.result(binding)
 
-    RestClient.post "https://local-bay.contacts.msn.com/abservice/SharingService.asmx", soap, {
+    RestClient.post url, soap, {
       'SOAPAction' => 'http://www.msn.com/webservices/AddressBook/FindMembership',
       'Content-Type' => 'text/xml',
     }
+  rescue RestClient::ExceptionWithResponse => ex
+    # Assume the CacheKey changed and we need to request to another URL
+    xml = Nokogiri::XML(ex.response.body)
+    cache_key = xml.xpath("//ns:CacheKey", ContactsNamespace).first
+    @cache_key = cache_key.text if cache_key
+    get_soap_contacts(ex.response.headers[:location])
+  end
+
+  def cache_key_xml
+    @cache_key ? "<CacheKey>#{REXML::Text.normalize @cache_key}</CacheKey>" : ""
   end
 
   def post_init
