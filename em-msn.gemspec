@@ -27,8 +27,9 @@ Gem::Specification.new do |s|
   ]
 
   s.require_path = "lib"
-  s.has_rdoc = false
-  s.extra_rdoc_files = ["README.md"]
+
+  s.rdoc_options = %w{--charset=UTF-8}
+  s.extra_rdoc_files = %w{README.md}
 
   s.add_dependency "eventmachine"
   s.add_dependency "rest-client"
