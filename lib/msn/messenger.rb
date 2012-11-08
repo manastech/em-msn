@@ -45,24 +45,24 @@ class Msn::Messenger
     end
   end
 
-  # Adds a contact. Technically, this adds it to your Friends List.
-  def add_contact(email)
+  # Adds a contact to your friends list.
+  def add_to_friends_list(email)
     send_contact_command email, 'ADL', '1'
   end
 
-  # Removes a contact. Technically, this removes it from your Friends List.
-  def remove_contact(email)
+  # Removes a contact from your friends list.
+  def remove_from_friends_list(email)
     send_contact_command email, 'RML', '1'
   end
 
-  # Blocks a contact. Technically, this removes it from your Allowed List.
-  def block_contact(email)
-    send_contact_command email, 'RML', '2'
+  # Adds a contact to your allowed list.
+  def add_to_allowed_list(email)
+    send_contact_command email, 'ADL', '2'
   end
 
-  # Unblocks a contact. Technically, this adds it to your Allowed List.
-  def unblock_contact(email)
-    send_contact_command email, 'ADL', '2'
+  # Removes a contact from your allowed list.
+  def remove_from_allowed_list(email)
+    send_contact_command email, 'RML', '2'
   end
 
   # Returns all contacts associated to this Messenger account.

@@ -43,7 +43,8 @@ MSN client (EventMachine + Ruby)
         msn.on_contact_request do |email, display_name|
           puts "Contact request from #{display_name} <#{email}>"
 
-          msn.add_contact email
+          msn.add_to_friends_list email
+          msn.add_to_allowed_list email
         end
 
         msn.connect
