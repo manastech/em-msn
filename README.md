@@ -4,7 +4,7 @@ MSN client (EventMachine + Ruby)
 
 ## Project Pages
 
-* [Docs](http://rdoc.info/gems/em-msn)
+* [Docs](http://rdoc.info/github/manastech/em-msn)
 * [GitHub](https://github.com/manastech/em-msn)
 
 # Usage
