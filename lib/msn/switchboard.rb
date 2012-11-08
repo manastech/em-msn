@@ -1,3 +1,4 @@
+# :nodoc:
 class Msn::Switchboard < EventMachine::Connection
   include Msn::Protocol
 

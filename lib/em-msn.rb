@@ -1,4 +1,5 @@
 module Msn
+  # :nodoc:
   ApplicationId = "CFE80F9D-180F-4399-82AB-413F33A1FA11"
 end
 

@@ -1,3 +1,4 @@
+# :nodoc:
 class Msn::Nexus
   attr_reader :messenger
   attr_reader :policy

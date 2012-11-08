@@ -1,3 +1,4 @@
+# :nodoc:
 class Msn::NotificationServer < EventMachine::Connection
   include Msn::Protocol
 

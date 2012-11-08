@@ -1,3 +1,4 @@
+# :nodoc:
 module Msn::Protocol
   include EventMachine::Protocols::LineText2
 

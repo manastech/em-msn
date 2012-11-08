@@ -1,3 +1,4 @@
+# :nodoc:
 class Msn::Challenge
   ProductKey = "RG@XY*28Q5QHS%Q5"
   ProductId = "PROD0113H11T8$X_"
@@ -37,7 +38,7 @@ class Msn::Challenge
       new_hash_parts[2] ^= high;
       new_hash_parts[3] ^= low;
 
-      new_hash_parts.map do |num| 
+      new_hash_parts.map do |num|
         str = num.to_s(16)
         str = "#{'0' * (8 - str.length)}#{str}" if str.length != 8
         str.scan(/.{2}/).reverse.join
