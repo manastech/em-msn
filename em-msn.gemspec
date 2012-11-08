@@ -14,12 +14,14 @@ Gem::Specification.new do |s|
 
   s.files = [
     "lib/em-msn.rb",
+    "lib/msn/soap/msn_get_contacts_template.xml",
+    "lib/msn/soap/msn_sso_template.xml",
     "lib/msn/authentication_error.rb",
-    "lib/msn/message.rb",
-    "lib/msn/contact.rb",
-    "lib/msn/nexus.rb",
-    "lib/msn/messenger.rb",
     "lib/msn/challenge.rb",
+    "lib/msn/contact.rb",
+    "lib/msn/message.rb",
+    "lib/msn/messenger.rb",
+    "lib/msn/nexus.rb",
     "lib/msn/notification_server.rb",
     "lib/msn/protocol.rb",
     "lib/msn/switchboard.rb",

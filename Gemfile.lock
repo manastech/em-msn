@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    em-msn (0.2)
+    em-msn (0.4)
       eventmachine
       guid
       nokogiri
